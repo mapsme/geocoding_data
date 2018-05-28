@@ -11,3 +11,5 @@ Just run `places_feed.sh`. Alternatively, you can use separate scripts:
 * `translate_places.py`: queries Wikidata and adds more translations to json files.
 * `validate_cities.py`: tests the completeness of the feeds.
 * `flat_json_to_csv.py`: converts json to csv.
+
+If you just need the files, you can take [some of ours](http://seofeed.maps.me/website/places/).
