@@ -96,12 +96,12 @@ DROP TABLE osm_point;
 \! echo "Adding level labels"
 ALTER TABLE osm_polygon ADD COLUMN level VARCHAR(12);
 UPDATE osm_polygon SET level = CASE
-  WHEN place IN ('city', 'town', 'village', 'hamlet') THEN 'locality'
-  WHEN place IN ('suburb', 'neighbourhood') THEN 'suburb'
-  WHEN place IN ('locality', 'isolated_dwelling') THEN 'sublocality'
   WHEN boundary = 'administrative' AND admin_level = '2' THEN 'country'
   WHEN boundary = 'administrative' AND admin_level = '4' THEN 'region'
+  WHEN place IN ('city', 'town', 'village', 'hamlet') THEN 'locality'
   WHEN boundary = 'administrative' AND admin_level = '6' THEN 'subregion'
+  WHEN place IN ('suburb', 'neighbourhood') THEN 'suburb'
+  WHEN place IN ('locality', 'isolated_dwelling') THEN 'sublocality'
   WHEN building IS NOT NULL THEN 'building'
 END;
 
@@ -120,10 +120,11 @@ WHERE osm_id = del_id;
 \! echo "Adding place ranks"
 ALTER TABLE osm_polygon ADD COLUMN rank SMALLINT;
 UPDATE osm_polygon SET rank = CASE
-  WHEN boundary = 'administrative' AND admin_level IN ('2', '3', '4', '5', '6', '7', '8') THEN admin_level::int
+  WHEN boundary = 'administrative' AND admin_level IN ('2', '3', '4') THEN admin_level::int
   WHEN place = 'city' THEN 10
   WHEN place = 'town' THEN 11
   WHEN place = 'village' THEN 13
+  WHEN boundary = 'administrative' AND admin_level IN ('5', '6', '7', '8') THEN admin_level::int
   WHEN place = 'suburb' THEN 14
   WHEN place = 'neighbourhood' THEN 15
   WHEN place = 'hamlet' THEN 17
