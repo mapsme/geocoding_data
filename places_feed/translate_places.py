@@ -97,7 +97,8 @@ for i in range(0, len(from_wikidata), WIKIDATA_API_QUERY_PACK):
     sys.stderr.write('{0} '.format(i))
     sys.stderr.flush()
     mapping = {x[1]: x[0] for x in from_wikidata[i:i+WIKIDATA_API_QUERY_PACK]}
-    url = WIKIDATA_BASE.format(langs='|'.join(LANGUAGES), ids='|'.join(mapping.keys()))
+    url = WIKIDATA_BASE.format(langs='|'.join(LANGUAGES),
+                               ids=urllib.parse.quote_plus('|'.join(mapping.keys())))
     time.sleep(1)
     response = urllib.request.urlopen(url)
     if response.getcode() != 200:

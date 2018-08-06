@@ -22,19 +22,36 @@ cur.execute("SELECT rank, osm_id, name, tags FROM osm_polygon WHERE rank = 2 OR 
 regions = {}
 countries = {}
 for row in cur:
-    if row[0] == 4 and row[1] not in regions:
-        regions[row[1]] = {}
-        regions[row[1]]['name'] = row[2]
-        regions[row[1]]['iso'] = (row[3].get('ISO3166-2') or
-                                  row[3].get('int_ref'))
-        parse_name_and_wiki(regions[row[1]], row[3])
-    if row[0] == 2 and row[1] not in countries:
-        countries[row[1]] = {}
-        countries[row[1]]['name'] = row[2]
-        countries[row[1]]['iso'] = (row[3].get('ISO3166-1:alpha2') or
-                                    row[3].get('ISO3166-1') or
-                                    row[3].get('int_ref'))
-        parse_name_and_wiki(countries[row[1]], row[3])
+    osm_id, tags = row[1], row[3]
+    if row[0] == 4 and osm_id not in regions:
+        regions[osm_id] = {}
+        regions[osm_id]['name'] = row[2]
+        population = tags.get('population')
+        if population and population.isdigit():
+            regions[osm_id]['population'] = int(population)
+        if 'default_language' in tags:
+            regions[osm_id]['language'] = tags['default_language']
+        if 'timezone' in tags:
+            regions[osm_id]['timezone'] = tags['timezone']
+        regions[osm_id]['iso'] = (tags.get('ISO3166-2') or
+                                  tags.get('int_ref'))
+        parse_name_and_wiki(regions[osm_id], tags)
+    if row[0] == 2 and osm_id not in countries:
+        countries[osm_id] = {}
+        countries[osm_id]['name'] = row[2]
+        population = tags.get('population')
+        if population and population.isdigit():
+            countries[osm_id]['population'] = int(population)
+        if 'flag' in tags and 'http' in tags['flag']:
+            countries[osm_id]['flag'] = tags['flag']
+        if 'default_language' in tags:
+            countries[osm_id]['language'] = tags['default_language']
+        if 'timezone' in tags:
+            countries[osm_id]['timezone'] = tags['timezone']
+        countries[osm_id]['iso'] = (tags.get('ISO3166-1:alpha2') or
+                                    tags.get('ISO3166-1') or
+                                    tags.get('int_ref'))
+        parse_name_and_wiki(countries[osm_id], tags)
 
 logging.info('Querying places')
 cur.execute("""
@@ -71,6 +88,9 @@ while True:
         places[row[0]]['name'] = row[2]
         places[row[0]]['lon'] = row[3]
         places[row[0]]['lat'] = row[4]
+        population = row[5].get('population')
+        if population and population.isdigit():
+            places[row[0]]['population'] = int(population)
         places[row[0]]['region'] = row[6]
         places[row[0]]['country'] = row[7]
         if row[6]:

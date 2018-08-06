@@ -486,6 +486,8 @@ for country, iso, city in COUNTRIES:
             for k, name in countries.get(str(places[pid]['country']), {}).items():
                 if k in ('name_en', 'int_name', 'name'):
                     pcountries.add(name.lower())
+                    if name.lower() == country.lower():
+                        print('Capital {},{}'.format(city, pid))
         if country.lower() not in pcountries:
             print('Country {} for capital {} not found, instead: {}'.format(
                 country, city, ', '.join([c.title() for c in sorted(pcountries)])))
